@@ -1,5 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
+import pickle
+
+
 
 
 class Lesson:
@@ -16,6 +19,9 @@ class Day:
         self.name = name
         self.date = date
         self.lessons = lessons
+    
+    def __getitem__(self, key: int):
+        return self.lessons[key]
 
 
 class Parser:
@@ -32,19 +38,22 @@ class Parser:
 
     def __authorization(self) -> bool:
         """Authorizes into the diary."""
-        form_data = {'login': self.login, 'password': self.password}
-        status_code = self.session.post('https://elschool.ru/logon/index', data=form_data).status_code
-        return status_code == 200
+        # form_data = {'login': self.login, 'password': self.password}
+        # status_code = self.session.post('https://elschool.ru/logon/index', data=form_data).status_code
+        # return status_code == 200
+        with open('elschool', 'rb') as f:
+            self.session.cookies.update(pickle.load(f))
+        return True
 
     def __parse_lesson(self, lesson: BeautifulSoup) -> Lesson:
-        lesson_name = lesson.find('div', {'class': 'flex-grow-1'})
-        lesson_time = lesson.find('div', {'class': 'diary__discipline__time'})
-        homework = lesson.find('div', {'class': 'diary__homework-text'})
+        lesson_name = lesson.find('div', {'class': 'flex-grow-1'}).text
+        lesson_time = lesson.find('div', {'class': 'diary__discipline__time'}).text
+        homework = lesson.find('div', {'class': 'diary__homework-text'}).text
         return Lesson(lesson_name, homework, lesson_time)
 
     def __parse_day(self, table: BeautifulSoup) -> Day:
         lessons_elements = table.findAll('tr', {'class': 'diary__lesson'})
-        day_name, day_date = lessons_elements[0].find('td', {'class': 'diary__dayweek '}).text.split()
+        day_name, day_date = lessons_elements[0].find('td', {'class': 'diary__dayweek'}).text.split()
         lessons = []
         for lesson in lessons_elements:
             lessons.append(self.__parse_lesson(lesson))
@@ -57,6 +66,9 @@ class Parser:
         parsed_html = BeautifulSoup(main_request.content, "lxml")
         diary = parsed_html.find('div', {'class': 'diaries'})
         tables = diary.findAll('tbody')
-        for table in tables:
+        for table in tables[:-2]:
             self.days.append(self.__parse_day(table))
         return 'Successful'
+    
+    def __getitem__(self, key):
+        return self.days[key]

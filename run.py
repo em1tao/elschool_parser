@@ -5,4 +5,6 @@ USER = config.USER
 PASSWORD = config.PASSWORD
 a = Parser(USER, PASSWORD)
 a.parse()
-print(a.days)
+for i in range(6):
+    for k in a[i]:
+        print(f"{k.name}: {k.homework }")
