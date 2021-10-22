@@ -1,8 +1,5 @@
 import requests
 from bs4 import BeautifulSoup
-import pickle
-
-
 
 
 class Lesson:
@@ -38,12 +35,10 @@ class Parser:
 
     def __authorization(self) -> bool:
         """Authorizes into the diary."""
-        # form_data = {'login': self.login, 'password': self.password}
-        # status_code = self.session.post('https://elschool.ru/logon/index', data=form_data).status_code
-        # return status_code == 200
-        with open('elschool', 'rb') as f:
-            self.session.cookies.update(pickle.load(f))
-        return True
+        form_data = {'login': self.login, 'password': self.password}
+        status_code = self.session.post('https://elschool.ru/logon/index', data=form_data).status_code
+        return status_code == 200
+  
 
     def __parse_lesson(self, lesson: BeautifulSoup) -> Lesson:
         lesson_name = lesson.find('div', {'class': 'flex-grow-1'}).text
@@ -66,7 +61,7 @@ class Parser:
         parsed_html = BeautifulSoup(main_request.content, "lxml")
         diary = parsed_html.find('div', {'class': 'diaries'})
         tables = diary.findAll('tbody')
-        for table in tables[:-2]:
+        for table in tables[:-1]:
             self.days.append(self.__parse_day(table))
         return 'Successful'
     
