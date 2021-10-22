@@ -16,7 +16,7 @@ class Day:
         self.name = name
         self.date = date
         self.lessons = lessons
-    
+
     def __getitem__(self, key: int):
         return self.lessons[key]
 
@@ -36,9 +36,9 @@ class Parser:
     def __authorization(self) -> bool:
         """Authorizes into the diary."""
         form_data = {'login': self.login, 'password': self.password}
-        status_code = self.session.post('https://elschool.ru/logon/index', data=form_data).status_code
-        return status_code == 200
-  
+        auth_request = self.session.post('https://elschool.ru/logon/index', 
+                                         data=form_data)
+        return auth_request.status_code == 200
 
     def __parse_lesson(self, lesson: BeautifulSoup) -> Lesson:
         lesson_name = lesson.find('div', {'class': 'flex-grow-1'}).text
@@ -64,6 +64,6 @@ class Parser:
         for table in tables[:-1]:
             self.days.append(self.__parse_day(table))
         return 'Successful'
-    
+ 
     def __getitem__(self, key):
         return self.days[key]
