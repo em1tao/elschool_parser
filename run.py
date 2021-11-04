@@ -1,7 +1,7 @@
 import config
 from parser import Parser
 
-USER = config.USER
+USERNAME = config.USERNAME
 PASSWORD = config.PASSWORD
 a = Parser(USER, PASSWORD)
 a.parse()
