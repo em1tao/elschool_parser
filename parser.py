@@ -57,6 +57,7 @@ class Parser:
     def parse(self) -> str:
         if not self.__authorization():
             return 'Authorization failed'
+        self.days = []
         main_request = self.session.get('https://elschool.ru/users/diaries')
         parsed_html = BeautifulSoup(main_request.content, "lxml")
         diary = parsed_html.find('div', {'class': 'diaries'})
